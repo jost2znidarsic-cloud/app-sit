@@ -67,9 +67,44 @@
     </div>
     <div class="field">
       <label for="password">Geslo</label>
-      <input type="password" id="password" name="password" autocomplete="current-password">
+      <input type="text" id="password" name="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
     </div>
     <button type="submit">Prijava</button>
   </form>
+  <script>
+    (function () {
+      var input = document.getElementById('password');
+      var realValue = '';
+      var maskTimer = null;
+
+      function render(revealLast) {
+        var masked = '•'.repeat(Math.max(realValue.length - (revealLast ? 1 : 0), 0));
+        input.value = revealLast ? masked + realValue.slice(-1) : masked;
+      }
+
+      input.addEventListener('input', function () {
+        var caret = input.selectionStart;
+        var displayed = input.value;
+        var prevLen = realValue.length;
+
+        if (displayed.length > prevLen) {
+          var added = displayed.slice(caret - (displayed.length - prevLen), caret);
+          realValue = realValue.slice(0, caret - (displayed.length - prevLen)) + added + realValue.slice(caret - (displayed.length - prevLen));
+        } else if (displayed.length < prevLen) {
+          var removedCount = prevLen - displayed.length;
+          realValue = realValue.slice(0, caret) + realValue.slice(caret + removedCount);
+        }
+
+        clearTimeout(maskTimer);
+        render(true);
+        input.setSelectionRange(caret, caret);
+
+        maskTimer = setTimeout(function () {
+          render(false);
+          input.setSelectionRange(realValue.length, realValue.length);
+        }, 1000);
+      });
+    })();
+  </script>
 </body>
 </html>
