@@ -43,6 +43,35 @@
     border-radius: 4px;
     font-size: 14px;
   }
+  .password-wrap {
+    position: relative;
+  }
+  .password-wrap input {
+    padding-right: 40px;
+  }
+  .toggle-password {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    padding: 0;
+  }
+  .toggle-password:hover {
+    color: #333;
+  }
+  .toggle-password svg {
+    width: 20px;
+    height: 20px;
+  }
   button {
     width: 100%;
     padding: 10px;
@@ -67,17 +96,35 @@
     </div>
     <div class="field">
       <label for="password">Geslo</label>
-      <input type="text" id="password" name="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div class="password-wrap">
+        <input type="text" id="password" name="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <button type="button" class="toggle-password" id="togglePassword" aria-label="Prikaži geslo">
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
     </div>
     <button type="submit">Prijava</button>
   </form>
   <script>
     (function () {
       var input = document.getElementById('password');
+      var toggle = document.getElementById('togglePassword');
+      var eyeIcon = document.getElementById('eyeIcon');
       var realValue = '';
       var maskTimer = null;
+      var showAll = false;
+
+      var eyeOpen = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      var eyeClosed = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.9 18.9 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
 
       function render(revealLast) {
+        if (showAll) {
+          input.value = realValue;
+          return;
+        }
         var masked = '•'.repeat(Math.max(realValue.length - (revealLast ? 1 : 0), 0));
         input.value = revealLast ? masked + realValue.slice(-1) : masked;
       }
@@ -99,10 +146,22 @@
         render(true);
         input.setSelectionRange(caret, caret);
 
-        maskTimer = setTimeout(function () {
-          render(false);
-          input.setSelectionRange(realValue.length, realValue.length);
-        }, 1000);
+        if (!showAll) {
+          maskTimer = setTimeout(function () {
+            render(false);
+            input.setSelectionRange(realValue.length, realValue.length);
+          }, 1000);
+        }
+      });
+
+      toggle.addEventListener('click', function () {
+        showAll = !showAll;
+        clearTimeout(maskTimer);
+        eyeIcon.innerHTML = showAll ? eyeClosed : eyeOpen;
+        toggle.setAttribute('aria-label', showAll ? 'Skrij geslo' : 'Prikaži geslo');
+        render(false);
+        input.focus();
+        input.setSelectionRange(realValue.length, realValue.length);
       });
     })();
   </script>
