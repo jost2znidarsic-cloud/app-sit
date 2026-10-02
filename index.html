@@ -85,10 +85,30 @@
   button:hover {
     background: #1f57b8;
   }
+  .message {
+    margin-top: 14px;
+    text-align: center;
+    min-height: 18px;
+  }
+  .message .error {
+    color: #d93025;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .message .attempts {
+    color: #777;
+    font-size: 12px;
+    margin-left: 6px;
+  }
+  .message .success {
+    color: #1a8a3c;
+    font-size: 14px;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
-  <form class="login-box" onsubmit="return false;">
+  <form class="login-box" id="loginForm">
     <h1>Prijava</h1>
     <div class="field">
       <label for="username">Uporabniško ime</label>
@@ -107,6 +127,7 @@
       </div>
     </div>
     <button type="submit">Prijava</button>
+    <div class="message" id="loginMessage"></div>
   </form>
   <script>
     (function () {
@@ -162,6 +183,25 @@
         render(false);
         input.focus();
         input.setSelectionRange(realValue.length, realValue.length);
+      });
+
+      var form = document.getElementById('loginForm');
+      var messageBox = document.getElementById('loginMessage');
+      var attempts = 0;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        attempts++;
+
+        if (attempts < 3) {
+          var remaining = 3 - attempts;
+          var attemptsLabel = remaining === 1 ? 'en poskus' : 'dva poskusa';
+          messageBox.innerHTML =
+            '<span class="error">Napačno geslo</span>' +
+            '<span class="attempts">Imate še ' + attemptsLabel + '</span>';
+        } else {
+          messageBox.innerHTML = '<span class="success">Prijava uspešna</span>';
+        }
       });
     })();
   </script>
